@@ -1,6 +1,7 @@
 import { getInputDirection } from "./input.js"
 
 export const SNAKE_SPEED = 30
+export const AUTOMATIC_MODE = true
 const snakeBody = [{ x:11, y:11 }]
 let newSegments = 0
 
@@ -13,8 +14,6 @@ export function update(){
 
 	snakeBody[0].x += inputDirection.x
 	snakeBody[0].y += inputDirection.y
-	
-	console.log("update")
 }
 
 export function draw(gameBoard){
@@ -25,8 +24,6 @@ export function draw(gameBoard){
 		snakeElement.classList.add('snake')
 		gameBoard.appendChild(snakeElement)
 	})
-
-	console.log("draw")
 }
 
 export function expandSnake(amount) {

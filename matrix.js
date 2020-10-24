@@ -1,4 +1,4 @@
-class Matrix{
+export class Matrix{
 	constructor(rows, cols, data = []){
 		this._rows = rows
 		this._cols = cols
@@ -112,8 +112,8 @@ class Matrix{
 
 	static transpose(matrix){
 		let retval = new Matrix(matrix.cols, matrix.rows)
-		for(let i = 0; i < retval.rows; i++){
-			for(let j = 0; j < retval.cols; j++){
+		for(let i = 0; i < matrix.rows; i++){
+			for(let j = 0; j < matrix.cols; j++){
 				retval.data[j][i] = matrix.data[i][j]
 			}
 		}

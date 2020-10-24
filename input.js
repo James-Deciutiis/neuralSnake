@@ -1,26 +1,35 @@
+import { AUTOMATIC_MODE } from './snake.js'
+
 let inputDirection = { x:0, y:0 }
 let lastInputDirection = inputDirection
 
 window.addEventListener('keydown', e => {
-	switch(e.key){
-		case 'ArrowUp':
-			if (lastInputDirection.y !== 0) break
-			inputDirection = { x:0, y:-1}
-			break
-		case 'ArrowRight':
-			if (lastInputDirection.x !== 0) break
-			inputDirection = { x:1, y:0}
-			break
-		case 'ArrowLeft':
-			if (lastInputDirection.x !== 0) break
-			inputDirection = { x:-1, y:0}
-			break
-		case 'ArrowDown':
-			if (lastInputDirection.y !== 0) break
-			inputDirection = { x:0, y:1}
-			break
+	if(!AUTOMATIC_MODE){
+		switch(e.key){
+			case 'ArrowUp':
+				if (lastInputDirection.y !== 0) break
+				inputDirection = { x:0, y:-1}
+				break
+			case 'ArrowRight':
+				if (lastInputDirection.x !== 0) break
+				inputDirection = { x:1, y:0}
+				break
+			case 'ArrowLeft':
+				if (lastInputDirection.x !== 0) break
+				inputDirection = { x:-1, y:0}
+				break
+			case 'ArrowDown':
+				if (lastInputDirection.y !== 0) break
+				inputDirection = { x:0, y:1}
+				break
+		}
 	}
 })
+
+export function setInputDirection(direction){
+	lastInputDirection = inputDirection
+	inputDiretion = direction
+}
 
 export function getInputDirection(){
 	lastInputDirection = inputDirection
