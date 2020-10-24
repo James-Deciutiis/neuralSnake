@@ -17,7 +17,7 @@ const DIRECTION_WEST = 7
 const DIRECTION_NORTH_WEST = 8
 const THRESHOLD = 0.25
 
-const nn = new NeuralNetwork(4, 32, 1)
+const nn = new NeuralNetwork(4, 50, 4)
 const gameBoard = document.getElementById('game-board')
 
 function main(currentTime){
@@ -42,7 +42,8 @@ if(AUTOMATIC_MODE){
 	let foodPosition = randomGridPosition()		
 	let snakeHead = randomGridPosition()
 	let fx, fy, hx, hy
-	for (let i = 0; i < 700000; i++){
+	let direction 
+	for (let i = 0; i < 1000000; i++){
 		foodPosition = randomGridPosition()
 		snakeHead = randomGridPosition()
 		fx = foodPosition.x
@@ -50,14 +51,42 @@ if(AUTOMATIC_MODE){
 		hx = snakeHead.x
 		hy = snakeHead.y
 		
-		let direction = findFoodDirection(fx, fy, hx, hy)	
-		nn.train(normalizeInput(fx, fy, hx, hy), [direction])
+		direction = findFoodDirection(fx, fy, hx, hy)
+		let north = direction == DIRECTION_NORTH || DIRECTION_NORTH_EAST || DIRECTION_NORTH_WEST ? 1 : 0
+		let east = direction == DIRECTION_EAST || DIRECTION_NORTH_EAST || DIRECTION_SOUTH_EAST ? 1 : 0
+		let south = direction == DIRECTION_SOUTH || DIRECTION_SOUTH_EAST || DIRECTION_SOUTH_WEST? 1 : 0
+		let west = direction  == DIRECTION_WEST || DIRECTION_SOUTH_WEST || DIRECTION_NORTH_WEST ? 1 : 0
+	
+		nn.train(normalizeInput(fx, fy, hx, hy), [north, east, south, west])
 	}
 	
-	let prediction = nn.feedForward([11, 12, 11, 11]).data[0][0]
-		
+	let prediction = nn.feedForward([12, 11, 11, 11]).data
+	let max = 0.0
+	let choice = 0
+	console.log(prediction)
+	for(let i = 0; i <= 3; i++){
+		console.log(prediction[0][i])
+		if(max < prediction[0][i]){
+			max = prediction[0][i]
+			choice = i
+		}
+	}
+
+	if(choice == 0){
+		prediction = DIRECTION_NORTH
+	}
+	if(choice == 1){
+		prediction = DIRECTION_EAST
+	}
+	if(choice == 2){
+		prediction = DIRECTION_SOUTH
+	}
+	if(choice == 3){
+		prediction = DIRECTION_WEST
+	}
+	
 	console.log("prediction: " + prediction)
-	console.log("should be: " + findFoodDirection(11,12,11,11))
+	console.log("should be: " + findFoodDirection(12,11,11,11))
 }
 
 window.requestAnimationFrame(main)
