@@ -7,6 +7,7 @@ import { NeuralNetwork } from './snakeNeuralNetwork.js'
 let lastRenderTime = 0
 let gameOver = false
 
+const DIRECTION_NONE = 0
 const DIRECTION_NORTH = 1
 const DIRECTION_NORTH_EAST = 2
 const DIRECTION_EAST = 3
@@ -17,8 +18,9 @@ const DIRECTION_WEST = 7
 const DIRECTION_NORTH_WEST = 8
 const THRESHOLD = 0.25
 
-const nn = new NeuralNetwork(6, 50, 4)
+const nn = new NeuralNetwork(6, 60, 4)
 const gameBoard = document.getElementById('game-board')
+let previousDirection = DIRECTION_NONE
 
 function main(currentTime){
 	window.requestAnimationFrame(main)
@@ -43,8 +45,9 @@ if(AUTOMATIC_MODE){
 	let snakeHead = randomGridPosition()
 	let fx, fy, hx, hy, ox, oy
 	let obstacleAvoidDirection, foodDirection, obstacle
+	let prevDirection = DIRECTION_NONE
 	let north, east, south, west
-	for (let i = 0; i < 5000000; i++){
+	for (let i = 0; i < 3000000; i++){
 		foodPosition = randomGridPosition()
 		snakeHead = randomGridPosition()
 		fx = foodPosition.x
@@ -56,21 +59,35 @@ if(AUTOMATIC_MODE){
 		oy = obstacle.y
 		
 		foodDirection = findFoodDirection(fx, fy, hx, hy)
-		obstacleAvoidDirection = avoidObstacleDirection(ox, oy, hx, hy)
-
+		obstacleAvoidDirection = avoidObstacleDirection(ox, oy, hx, hy, prevDirection)
+		
 		if(obstacle.x != 0 && obstacle.y != 0){
-			north = obstacleAvoidDirection == DIRECTION_NORTH || obstacleAvoidDirection ==  DIRECTION_NORTH_EAST || obstacleAvoidDirection == DIRECTION_NORTH_WEST ? 1 : 0
-			east = obstacleAvoidDirection == DIRECTION_EAST || obstacleAvoidDirection == DIRECTION_NORTH_EAST || obstacleAvoidDirection == DIRECTION_SOUTH_EAST ? 1 : 0
-			south = obstacleAvoidDirection == DIRECTION_SOUTH || obstacleAvoidDirection == DIRECTION_SOUTH_EAST || obstacleAvoidDirection == DIRECTION_SOUTH_WEST ? 1 : 0
-			west = obstacleAvoidDirection  == DIRECTION_WEST || obstacleAvoidDirection == DIRECTION_SOUTH_WEST || obstacleAvoidDirection == DIRECTION_NORTH_WEST ? 1 : 0
+			north = isNorth(prevDirection, obstacleAvoidDirection)
+			east = isEast(prevDirection, obstacleAvoidDirection)
+			south = isSouth(prevDirection, obstacleAvoidDirection)
+			west = isWest(prevDirection, obstacleAvoidDirection)
+			prevDirection = obstacleAvoidDirection
 		}
 		else{
-			north = foodDirection == DIRECTION_NORTH || foodDirection ==  DIRECTION_NORTH_EAST || foodDirection == DIRECTION_NORTH_WEST ? 1 : 0
-			east = foodDirection == DIRECTION_EAST || foodDirection == DIRECTION_NORTH_EAST || foodDirection == DIRECTION_SOUTH_EAST ? 1 : 0
-			south = foodDirection == DIRECTION_SOUTH || foodDirection == DIRECTION_SOUTH_EAST || foodDirection == DIRECTION_SOUTH_WEST ? 1 : 0
-			west = foodDirection  == DIRECTION_WEST || foodDirection == DIRECTION_SOUTH_WEST || foodDirection == DIRECTION_NORTH_WEST ? 1 : 0
+			north = isNorth(prevDirection, foodDirection)
+			east = isEast(prevDirection, foodDirection)
+			south = isSouth(prevDirection, foodDirection)
+			west = isWest(prevDirection, foodDirection)
+			if(north){
+				prevDirection = DIRECTION_NORTH
+			}
+			else if(east){
+				prevDirection = DIRECTION_EAST
+			}
+			else if(south){
+				prevDirection = DIRECTION_SOUTH
+			}
+			else if(west){
+				prevDirection = DIRECTION_WEST
+			}
 		}
 
+		
 		nn.train(normalizeInput(fx, fy, hx, hy, ox, oy), [north, east, south, west])
 	}
 }
@@ -90,10 +107,10 @@ function update(){
 		let ox = findObstacles(hx, hy).x
 		let oy = findObstacles(hx, hy).y
 
-		let obstacleAvoidDirection = avoidObstacleDirection(ox, oy, hx, hy)
-		console.log("direction to live: " + obstacleAvoidDirection)	
 		let prediction = nn.feedForward(normalizeInput(fx, fy, hx, hy, ox, oy)).data
 		
+		let obstacleAvoidDirection = avoidObstacleDirection(ox, oy, hx, hy, previousDirection)
+		console.log(obstacleAvoidDirection)
 		let max = 0.0
 		let choice = 0
 		for(let i = 0; i <= 3; i++){
@@ -106,19 +123,24 @@ function update(){
 		
 		if(choice == 0 && getInputDirection().y == 0){
 			prediction = { x: 0 , y: -1 }
+			previousDirection = DIRECTION_NORTH
 		}
 		else if(choice == 1 && getInputDirection().x == 0){
 			prediction = { x: 1, y: 0 }
+			previousDirection = DIRECTION_EAST
 		}
 		else if(choice == 2 && getInputDirection().y == 0){
 			prediction = { x: 0, y: 1 }
+			previousDirection = DIRECTION_SOUTH
 		}
 		else if(choice == 3 && getInputDirection().x == 0){
 			prediction = { x: -1, y: 0 } 
+			previousDirection = DIRECTION_WEST
 		}
 		else{
 			prediction = getInputDirection()
 		}
+
 		console.log("prediction: " + prediction.x + prediction.y)
 
 		setInputDirection(prediction)
@@ -219,7 +241,8 @@ function findFoodDirection(fx, fy, hx, hy){
 			return DIRECTION_EAST 
 		}
 	}	
-	return 0 
+
+	return DIRECTION_NONE 
 }
 
 function findObstacles(hx, hy){
@@ -246,35 +269,88 @@ function findObstacles(hx, hy){
 	return {x:0, y:0}
 }
 
-function avoidObstacleDirection(ox, oy, hx, hy){
-	//obstacle north or south?
-	if(ox == hx && (oy == (hy-1)  || oy == (hy+1))){
-		//is there a wall or snake east in addition to one being north
-		if(onSnake({x:(hx+1), y:(hy)}) || outsideGrid({x:(hx+1), y:(hy)})){
-			return DIRECTION_WEST
-		}	
-		//wall or snake west?
-		if(onSnake({x:(hx-1), y:(hy)}) || outsideGrid({x:(hx-1), y:(hy)})){
+function avoidObstacleDirection(ox, oy, hx, hy, prevDirection){
+	//north check
+	//we dont care whats happening north if snake is moving south
+	if(prevDirection == DIRECTION_NORTH || DIRECTION_NONE){
+		//obstacle north? 
+		if(ox == hx && oy == (hy-1)){
+			//is there a wall or snake east in addition to one being north
+			if(onSnake({x:(hx+1), y:(hy)}) || outsideGrid({x:(hx+1), y:(hy)})){
+				return DIRECTION_WEST
+			}	
+			//wall or snake west?
+			if(onSnake({x:(hx-1), y:(hy)}) || outsideGrid({x:(hx-1), y:(hy)})){
+				return DIRECTION_EAST
+			}
+		
 			return DIRECTION_EAST
 		}
-
-		return DIRECTION_EAST
-	}
-	
-	//obstacle east or west?
-	if((ox == (hx+1) || ox == (hx-1)) && oy == hy){
-		//wall or snake north?
-		if(onSnake({x:(hx), y:(hy-1)}) || outsideGrid({x:(hx), y:(hy-1)})){
-			return DIRECTION_SOUTH
-		}	
-		//wall or snake south?
-		if(onSnake({x:(hx), y:(hy+1)}) || outsideGrid({x:(hx), y:(hy+1)})){
-			return DIRECTION_NORTH
-		}
+		
 		return DIRECTION_NORTH
 	}
 
-	return 0
+	//east check
+	//we dont care about whats happening east if snake is moving west
+	if(prevDirection == DIRECTION_EAST){
+		//obstacle east?
+		if(ox == (hx+1) && oy == hy){
+			//wall or snake north?
+			if(onSnake({x:(hx), y:(hy-1)}) || outsideGrid({x:(hx), y:(hy-1)})){
+				return DIRECTION_SOUTH
+			}
+			//wall or snake south?
+			if(onSnake({x:(hx), y:(hy+1)}) || outsideGrid({x:(hx), y:(hy+1)})){
+				return DIRECTION_NORTH
+			}
+
+			return DIRECTION_NORTH
+		}	
+			
+		return DIRECTION_EAST
+	}
+	
+	//south check
+	//we dont care whats happening south if snake is moving north
+	if(prevDirection == DIRECTION_SOUTH){
+		//obstacle south? 
+		if((ox == hx) && (oy == (hy+1))){
+			//is there a wall or snake east in addition to one being south
+			if(onSnake({x:(hx+1), y:(hy)}) || outsideGrid({x:(hx+1), y:(hy)})){
+				return DIRECTION_WEST
+			}	
+			//wall or snake west?
+			if(onSnake({x:(hx-1), y:(hy)}) || outsideGrid({x:(hx-1), y:(hy)})){
+				return DIRECTION_EAST
+			}
+		
+			return DIRECTION_EAST
+		}
+				
+		return DIRECTION_SOUTH
+	}
+	
+	//west check
+	//we dont care about whats happening west if snake is moving east
+	if(prevDirection == DIRECTION_WEST){
+		//obstacle west?
+		if(ox == (hx-1) && oy == hy){
+			//wall or snake north?
+			if(onSnake({x:(hx), y:(hy-1)}) || outsideGrid({x:(hx), y:(hy-1)})){
+				return DIRECTION_SOUTH
+			}
+			//wall or snake south?
+			if(onSnake({x:(hx), y:(hy+1)}) || outsideGrid({x:(hx), y:(hy+1)})){
+				return DIRECTION_NORTH
+			}
+
+			return DIRECTION_NORTH
+		}	
+				
+		return DIRECTION_WEST
+	}
+
+	return DIRECTION_NONE
 }
 
 function normalizeInput(fx, fy, hx, hy, ox, oy){
@@ -289,8 +365,68 @@ function normalizeInput(fx, fy, hx, hy, ox, oy){
 	return retval
 }
 
-function normalizeOutput(direction){
-	return [(direction - 0)/(8 - 0)]
+function isNorth(prevDirection, direction){
+	if(prevDirection == DIRECTION_NONE){
+		return direction == DIRECTION_NORTH || direction ==  DIRECTION_NORTH_EAST || direction == DIRECTION_NORTH_WEST
+	}
+	else{
+		if(prevDirection == DIRECTION_NORTH || prevDirection == DIRECTION_SOUTH){
+			return 0
+		}
+		else{
+			return direction == DIRECTION_NORTH || direction ==  DIRECTION_NORTH_EAST || direction == DIRECTION_NORTH_WEST
+		}
+	}
+
+	return 0
+}
+
+function isEast(prevDirection, direction){
+	if(prevDirection == DIRECTION_NONE){
+		return direction == DIRECTION_EAST || direction == DIRECTION_NORTH_EAST || direction == DIRECTION_SOUTH_EAST 
+	}
+	else{
+		if(prevDirection == DIRECTION_EAST || prevDirection == DIRECTION_WEST){
+			return 0
+		}
+		else{
+			return direction == DIRECTION_EAST || direction == DIRECTION_NORTH_EAST || direction == DIRECTION_SOUTH_EAST 
+		}
+	}
+	
+	return 0
+}
+
+function isSouth(prevDirection, direction){
+	if(prevDirection == DIRECTION_NONE){
+		return direction == DIRECTION_SOUTH || direction == DIRECTION_SOUTH_EAST || direction == DIRECTION_SOUTH_WEST 
+	}
+	else{
+		if(prevDirection == DIRECTION_NORTH || prevDirection == DIRECTION_SOUTH){
+			return 0
+		}
+		else{
+			return direction == DIRECTION_SOUTH || direction == DIRECTION_SOUTH_EAST || direction == DIRECTION_SOUTH_WEST 
+		}
+	}
+
+	return 0
+}
+
+function isWest(prevDirection, direction){
+	if(prevDirection == DIRECTION_NONE){
+		return direction  == DIRECTION_WEST || direction == DIRECTION_SOUTH_WEST || direction == DIRECTION_NORTH_WEST 
+	}
+	else{
+		if(prevDirection == DIRECTION_EAST || prevDirection == DIRECTION_WEST){
+			return 0
+		}
+		else{
+			return direction  == DIRECTION_WEST || direction == DIRECTION_SOUTH_WEST || direction == DIRECTION_NORTH_WEST 
+		}
+	}
+
+	return 0
 }
 
 function checkLoss(){
