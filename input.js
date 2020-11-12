@@ -1,8 +1,5 @@
 import { AUTOMATIC_MODE } from './snake.js'
 
-let inputDirection = { x:0, y:0 }
-let lastInputDirection = inputDirection
-
 window.addEventListener('keydown', e => {
 	if(!AUTOMATIC_MODE){
 		switch(e.key){
@@ -25,14 +22,3 @@ window.addEventListener('keydown', e => {
 		}
 	}
 })
-
-export function setInputDirection(direction){
-	lastInputDirection = inputDirection
-	inputDirection = direction
-}
-
-export function getInputDirection(){
-	lastInputDirection = inputDirection
-	return inputDirection
-}
-

@@ -129,12 +129,3 @@ export class Matrix{
 		}
 	}
 }
-
-let matrix = new Matrix(2, 2, [[2,2], [3,3]])
-console.log(matrix.data)
-
-let matrix2 = new Matrix(2, 2, [[1,2], [3,4]])
-console.log(matrix2.data)
-
-let matrix3 = Matrix.map(matrix2, x => x / 2)
-console.log(matrix3.data)

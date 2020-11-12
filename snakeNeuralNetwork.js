@@ -7,7 +7,7 @@ export class NeuralNetwork{
 	constructor(numInputs, numHidden, numOutputs){
 		this._hidden = []
 		this._inputs = []
-		this._errorScore = 0
+		this._score = 0
 		this._numInputs = numInputs
 		this._numHidden = numHidden
 		this._numOutputs = numOutputs
@@ -56,11 +56,11 @@ export class NeuralNetwork{
 	}
 
 	get numHidden(){
-		return numHidden
+		return this._numHidden
 	}
 
-	get errorScore(){
-		return errorScore
+	get score(){
+		return this._score
 	}
 
 	//setters
@@ -91,15 +91,15 @@ export class NeuralNetwork{
 	set logCount(count){
 		this._logCount = count
 	}
+	
+	set score(score){
+		this._score = score
+	}
 
-	set hiddenNum(num){
-		hiddenNum = num
+	set numHidden(num){
+		this._numHidden = num
 	}
 	
-	set errorScore(score){
-		this._errorScore = score
-	}
-
 	feedForward(inputArray){
 		this.inputs = Matrix.convertFromArray(inputArray)
 
@@ -130,8 +130,6 @@ export class NeuralNetwork{
 			}
 		}
 
-		this.errorScore = (outputErrors.data[0][0] + errorScores)
-		
 		let outputDerivs = Matrix.map(outputs, x => sigmoid(x, true))
 		let outputDeltas = Matrix.multiplyMatrices(outputErrors, outputDerivs)
 		
