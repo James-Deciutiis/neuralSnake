@@ -12,8 +12,8 @@ const DIRECTION_SOUTH = 5
 const DIRECTION_SOUTH_WEST = 6
 const DIRECTION_WEST = 7
 const DIRECTION_NORTH_WEST = 8
-const TRAINING_SESSIONS = 400000
-const GENERATION_SIZE = 1
+const TRAINING_SESSIONS = 10000
+const GENERATION_SIZE = 5
 
 let generation = createPopulation(GENERATION_SIZE)
 
@@ -35,19 +35,17 @@ export function trainSnake(network, snake){
 	let foodPosition = randomGridPosition()		
 	let snakeHead
 	let fx, fy, hx, hy, ox, oy
-	let prevDirection = DIRECTION_NORTH
+	let prevDirection = convertToCardinal(snake.lastInputDirection)
 	let prediction
 	let obstacleAvoidDirection, foodDirection, obstacles
 	let north, east, south, west
-	snake.inputDirection = {x:0 , y:-1}
 
 	for(let j = 0; j < TRAINING_SESSIONS; j++){
 		snake.update()
 		
 		if(deadPosition({x:hx , y:hy}, snake)){
 			snake.restart()
-			snake.inputDirection = {x:0 , y:-1}
-			prevDirection = DIRECTION_NORTH
+			prevDirection = convertToCardinal(snake.lastInputDirection)
 		}
 		
 		foodPosition = randomGridPosition()
@@ -74,20 +72,20 @@ export function trainSnake(network, snake){
 		obstacleAvoidDirection = avoidObstacleDirection(north_obstacle, east_obstacle, south_obstacle, west_obstacle, snake, prevDirection)
 		let eatDirection = eatFoodDirection(north_food, east_food, south_food, west_food, prevDirection)
 
-		if(eatDirection != DIRECTION_NONE){
-			north = isNorth(prevDirection, eatDirection)
-			east = isEast(prevDirection, eatDirection)
-			south = isSouth(prevDirection, eatDirection)
-			west = isWest(prevDirection, eatDirection)
-		}
-		else{
+		if(obstacleAvoidDirection != DIRECTION_NONE){
 			north = isNorth(prevDirection, obstacleAvoidDirection)
 			east = isEast(prevDirection, obstacleAvoidDirection)
 			south = isSouth(prevDirection, obstacleAvoidDirection)
 			west = isWest(prevDirection, obstacleAvoidDirection)
 		}
+		else{
+			north = isNorth(prevDirection, eatDirection)
+			east = isEast(prevDirection, eatDirection)
+			south = isSouth(prevDirection, eatDirection)
+			west = isWest(prevDirection, eatDirection)
+		}
 
-		network.train(normalizeInput(hx, hy, north_food, east_food, south_food, west_food, north_obstacle, east_obstacle, south_obstacle, west_obstacle, prevDirection), [north, east, south, west])
+		network.train(normalizeInput(north_food, east_food, south_food, west_food, north_obstacle, east_obstacle, south_obstacle, west_obstacle, prevDirection), [north, east, south, west])
 		
 		if(north){
 			prediction = { x: 0 , y: -1 }
@@ -125,10 +123,8 @@ export function findFoodDirection(fx, fy, snake, prevDirection){
 		for(let i = hy-1; i >= 1; i--){
 			if(i == fy){
 				north = true	
-				break
 			}
 			else if(deadPosition({x:hx, y:i}, snake)){
-				break
 			}
 		}
 	}
@@ -138,10 +134,8 @@ export function findFoodDirection(fx, fy, snake, prevDirection){
 		for(let i = hx+1; i < GRID_SIZE; i++){
 			if(i == fx){
 				east = true
-				break
 			}
 			else if(deadPosition({x: i, y: hy}, snake)){
-				break
 			}
 		}
 	}
@@ -151,10 +145,8 @@ export function findFoodDirection(fx, fy, snake, prevDirection){
 		for(let i = hy+1; i < GRID_SIZE; i++){
 			if(i == fy){
 				south = true
-				break
 			}
 			else if(deadPosition({x: hx, y: i}, snake)){
-				break
 			}
 		}
 	}
@@ -167,7 +159,6 @@ export function findFoodDirection(fx, fy, snake, prevDirection){
 				break
 			}
 			else if(deadPosition({x: i, y: hy}, snake)){
-				break
 			}
 		}
 	}
@@ -177,7 +168,7 @@ export function findFoodDirection(fx, fy, snake, prevDirection){
 
 export function eatFoodDirection(north_food, east_food, south_food, west_food, prevDirection){
 	if(!north_food && !east_food && !south_food && !west_food){
-		return DIRECTION_NONE
+		return prevDirection
 	}
 
 	if(north_food && prevDirection != DIRECTION_SOUTH){
@@ -196,7 +187,7 @@ export function eatFoodDirection(north_food, east_food, south_food, west_food, p
 		return DIRECTION_WEST
 	}
 
-	return DIRECTION_NONE
+	return prevDirection
 }
 
 export function findObstacles(snake, prevDirection){
@@ -238,7 +229,7 @@ export function avoidObstacleDirection(north_obstacle, east_obstacle, south_obst
 	let hy = snakeHead.y
 	
 	if(!north_obstacle && !east_obstacle && !south_obstacle && !west_obstacle){
-		return prevDirection
+		return DIRECTION_NONE
 	}
 
 	if(north_obstacle && prevDirection == DIRECTION_NORTH){
@@ -248,8 +239,9 @@ export function avoidObstacleDirection(north_obstacle, east_obstacle, south_obst
 		else if(east_obstacle){
 			return DIRECTION_WEST
 		}
-
-		return DIRECTION_EAST
+		else{
+			return DIRECTION_EAST
+		}
 	}
 	
 	if(east_obstacle && prevDirection == DIRECTION_EAST){
@@ -259,8 +251,9 @@ export function avoidObstacleDirection(north_obstacle, east_obstacle, south_obst
 		else if(south_obstacle){
 			return DIRECTION_NORTH
 		}
-
-		return DIRECTION_NORTH
+		else{
+			return DIRECTION_NORTH
+		}
 	}
 	
 	if(south_obstacle && prevDirection == DIRECTION_SOUTH){
@@ -270,8 +263,9 @@ export function avoidObstacleDirection(north_obstacle, east_obstacle, south_obst
 		else if(east_obstacle){
 			return DIRECTION_WEST
 		}
-
-		return DIRECTION_WEST
+		else{
+			return DIRECTION_WEST
+		}
 	}
 	
 	if(west_obstacle && prevDirection == DIRECTION_WEST){
@@ -281,32 +275,58 @@ export function avoidObstacleDirection(north_obstacle, east_obstacle, south_obst
 		else if(south_obstacle){
 			return DIRECTION_NORTH
 		}
-
-		return DIRECTION_SOUTH
+		else{
+			return DIRECTION_NORTH
+		}
 	}
 	
-	return prevDirection
+	return DIRECTION_NONE
 }
 
-function deadPosition(pos, snake){
+export function deadPosition(pos, snake){
 	return snake.onSnake({x:pos.x, y:pos.y}) || outsideGrid({x:pos.x, y:pos.y})
 }
 
-export function normalizeInput(hx, hy, north_food, east_food, south_food, west_food, north_obstacle, east_obstacle, south_obstacle, west_obstacle, prevDirection){
+export function normalizeInput(north_food, east_food, south_food, west_food, north_obstacle, east_obstacle, south_obstacle, west_obstacle, prevDirection){
 	let retval = []
-	retval[0] = (hx - 1) / (GRID_SIZE - 1)
-	retval[1] = (hy - 1) / (GRID_SIZE - 1)
-	retval[2] = (north_food)
-	retval[3] = (east_food)
-	retval[4] = (south_food)
-	retval[5] = (west_food)
-	retval[6] = (north_obstacle)
-	retval[7] = (east_obstacle)
-	retval[8] = (south_obstacle)
-	retval[9] = (west_obstacle)
-	retval[10] = (prevDirection) / (7)
+	retval[0] = (north_food)
+	retval[1] = (east_food)
+	retval[2] = (south_food)
+	retval[3] = (west_food)
+	retval[4] = (north_obstacle)
+	retval[5] = (east_obstacle)
+	retval[6] = (south_obstacle)
+	retval[7] = (west_obstacle)
+	retval[8] = (prevDirection) / (7)
 	
 	return retval
+}
+
+export function convertToCardinal(pos){
+	if(pos.x == 0){
+		if(pos.y == -1){
+			return DIRECTION_NORTH
+		}
+		if(pos.y == 1){
+			return DIRECTION_SOUTH
+		}
+		else{
+			return DIRECTION_NONE
+		}
+	}
+	else{
+		if(pos.x == 1){
+			return DIRECTION_EAST
+		}
+		if(pos.x == -1){
+			return DIRECTION_WEST
+		}
+		else{
+			return DIRECTION_NONE
+		}
+	}
+
+	return DIRECTION_NONE
 }
 
 function isNorth(prevDirection, direction){

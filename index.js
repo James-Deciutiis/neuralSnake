@@ -2,7 +2,7 @@ import { SNAKE_SPEED, AUTOMATIC_MODE, Snake } from './snake.js'
 import { update as updateFood, draw as drawFood, getRandomFoodPosition, getFoodPosition } from './food.js'
 import { outsideGrid, randomGridPosition, GRID_SIZE } from './grid.js'
 import { NeuralNetwork } from './snakeNeuralNetwork.js'
-import { trainGeneration, findObstacles, findFoodDirection, eatFoodDirection, avoidObstacleDirection, normalizeInput } from './trainingData.js' 
+import { trainGeneration, findObstacles, findFoodDirection, eatFoodDirection, avoidObstacleDirection, normalizeInput, convertToCardinal, deadPosition } from './trainingData.js' 
 import { evolve } from './snakeGenetics.js'
 
 let lastRenderTime = 0
@@ -11,8 +11,7 @@ let gameOver = false
 let nn = []
 let snakes = []
 let lastGenerationTime = 0
-let prevDirection = 1
-const THRESHOLD = 0.15
+const THRESHOLD = 0.05
 const gameBoard = document.getElementById('game-board')
 
 if(AUTOMATIC_MODE){
@@ -59,12 +58,13 @@ function update(){
 			}
 			if(deadCount >= snakes.length || (Date.now()/1000) - lastGenerationTime > 60){	
 				snakes[i].fitness = (Date.now()/1000) - lastGenerationTime	
+
 				let data = evolve(nn, snakes)
 				nn = data.retVal
 				snakes = data.snakes
 				deadCount = 0
 				lastGenerationTime = Date.now()/1000
-				prevDirection = 1
+				break
 			}
 			updateFood(snakes[i])
 			snakes[i].update()
@@ -97,7 +97,9 @@ function autoMove(nn, snake){
 	let fy = foodPosition.y
 	let hx = snakeHead.x
 	let hy = snakeHead.y
-	
+		
+	let prevDirection = convertToCardinal(snake.lastInputDirection)
+
 	let obstacles = findObstacles(snake, prevDirection)
 
 	let north_obstacle = obstacles[0]
@@ -112,9 +114,10 @@ function autoMove(nn, snake){
 	let south_food = foodDirection[2]
 	let west_food = foodDirection[3]
 
-	let prediction = nn.feedForward(normalizeInput(hx, hy, north_food, east_food, south_food, west_food, north_obstacle, east_obstacle, south_obstacle, west_obstacle, prevDirection)).data
+	let prediction = nn.feedForward(normalizeInput(north_food, east_food, south_food, west_food, north_obstacle, east_obstacle, south_obstacle, west_obstacle, prevDirection)).data
 	let max = 0.0
 	let choice = -1
+
 	let obstacleAvoidDirection = avoidObstacleDirection(north_obstacle, east_obstacle, south_obstacle, west_obstacle, snake, prevDirection)
 	console.log("direction to live: " + obstacleAvoidDirection)	
 

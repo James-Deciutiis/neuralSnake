@@ -128,4 +128,13 @@ export class Matrix{
 			}
 		}
 	}
+	
+	getRandomWeights(){
+		let retVal = new Matrix(this.rows, this.cols)
+		retVal.setRandomWeights()
+
+		return retVal
+	}	
+
 }
+	
