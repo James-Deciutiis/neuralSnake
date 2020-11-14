@@ -1,6 +1,6 @@
 import { GRID_SIZE } from './grid.js'
 
-export const SNAKE_SPEED = 10
+export const SNAKE_SPEED = 15
 export const AUTOMATIC_MODE = true
 
 export class Snake{
@@ -95,6 +95,10 @@ export class Snake{
 
 	get dead(){
 		return this._dead
+	}
+
+	get elementId(){
+		return this._elementId
 	}
 
 	set dead(bool){

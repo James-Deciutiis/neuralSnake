@@ -70,9 +70,12 @@ export function trainSnake(network, snake){
 		let west_food = foodDirection[3]
 
 		obstacleAvoidDirection = avoidObstacleDirection(north_obstacle, east_obstacle, south_obstacle, west_obstacle, snake, prevDirection)
+		let isObstacle = (obstacleAvoidDirection != DIRECTION_NONE) ? 1 : 0
+		//console.log("isObstacle: " + isObstacle)
+
 		let eatDirection = eatFoodDirection(north_food, east_food, south_food, west_food, prevDirection)
 
-		if(obstacleAvoidDirection != DIRECTION_NONE){
+		if(isObstacle != DIRECTION_NONE){
 			north = isNorth(prevDirection, obstacleAvoidDirection)
 			east = isEast(prevDirection, obstacleAvoidDirection)
 			south = isSouth(prevDirection, obstacleAvoidDirection)
@@ -85,7 +88,7 @@ export function trainSnake(network, snake){
 			west = isWest(prevDirection, eatDirection)
 		}
 
-		network.train(normalizeInput(north_food, east_food, south_food, west_food, north_obstacle, east_obstacle, south_obstacle, west_obstacle, prevDirection), [north, east, south, west])
+		network.train(normalizeInput(north_food, east_food, south_food, west_food, north_obstacle, east_obstacle, south_obstacle, west_obstacle, isObstacle, prevDirection), [north, east, south, west])
 		
 		if(north){
 			prediction = { x: 0 , y: -1 }
@@ -240,7 +243,7 @@ export function avoidObstacleDirection(north_obstacle, east_obstacle, south_obst
 			return DIRECTION_WEST
 		}
 		else{
-			return DIRECTION_EAST
+			return DIRECTION_WEST
 		}
 	}
 	
@@ -287,7 +290,7 @@ export function deadPosition(pos, snake){
 	return snake.onSnake({x:pos.x, y:pos.y}) || outsideGrid({x:pos.x, y:pos.y})
 }
 
-export function normalizeInput(north_food, east_food, south_food, west_food, north_obstacle, east_obstacle, south_obstacle, west_obstacle, prevDirection){
+export function normalizeInput(north_food, east_food, south_food, west_food, north_obstacle, east_obstacle, south_obstacle, west_obstacle, isObstacle, prevDirection){
 	let retval = []
 	retval[0] = (north_food)
 	retval[1] = (east_food)
@@ -297,7 +300,8 @@ export function normalizeInput(north_food, east_food, south_food, west_food, nor
 	retval[5] = (east_obstacle)
 	retval[6] = (south_obstacle)
 	retval[7] = (west_obstacle)
-	retval[8] = (prevDirection) / (7)
+	retval[8] = (isObstacle)
+	retval[9] = (prevDirection) / (7)
 	
 	return retval
 }
@@ -326,7 +330,7 @@ export function convertToCardinal(pos){
 		}
 	}
 
-	return DIRECTION_NONE
+	return prevDirection
 }
 
 function isNorth(prevDirection, direction){

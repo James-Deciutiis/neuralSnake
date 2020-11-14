@@ -2,13 +2,17 @@ import { NeuralNetwork } from './snakeNeuralNetwork.js'
 import { Snake } from './snake.js'
 import { Matrix } from './matrix.js'
 import { trainSnake } from './trainingData.js'
+import { plot } from './plot.js'
 
 const MAX_NUMBER_OF_NEURONS = 100
+let generationNumber = 0
+let generationAxis = []
+let maxFitness = []
 
 export function createPopulation(size){
 	let pop = []
 	for(let i = 0; i < size; i++){
-		let nn = new NeuralNetwork(9, MAX_NUMBER_OF_NEURONS, 4)   
+		let nn = new NeuralNetwork(10, MAX_NUMBER_OF_NEURONS, 4)   
 		pop.push(nn)
 	}
 	
@@ -18,7 +22,7 @@ export function createPopulation(size){
 function breed(mother, father){
 	let children = []
 	for(let i = 0; i < 2; i++){
-		let child = new NeuralNetwork(9, MAX_NUMBER_OF_NEURONS, 4)
+		let child = new NeuralNetwork(10, MAX_NUMBER_OF_NEURONS, 4)
 		child.weights1 = father.weights1
 		child.weights2 = mother.weights2
 		children.push(child)
@@ -42,16 +46,21 @@ export function evolve(pop, snakes){
 	let newGen = []
 	let children = []
 
+	snakes.sort(function(a, b){return Math.abs(b.fitness) - Math.abs(a.fitness)})
+	pop.sort(function(a, b){return Math.abs(b.score) - Math.abs(a.score)})
+	
+	maxFitness.push(snakes[0].fitness)
+	generationAxis.push(generationNumber)
+	plot(generationAxis, maxFitness)
+
 	for(let i = 0; i < snakes.length; i++){
 		pop[i].score = snakes[i].fitness
 		console.log("fitness : " + snakes[i].fitness)
+		console.log("snake id: " + snakes[i].elementId)
 	}
 
-	snakes.sort(function(a, b){return Math.abs(b.fitness) - Math.abs(a.fitness)})
-	pop.sort(function(a, b){return Math.abs(b.score) - Math.abs(a.score)})
-
 	//remove everything but the best 2 snakes
-	while(pop.length > 4){
+	while(pop.length > 3){
 		pop.pop()
 		snakes.pop()
 	}
@@ -60,36 +69,31 @@ export function evolve(pop, snakes){
 		snakes[i].restart()
 	}
 	
-	//randomly mutate some of the snakes
-	for(let i = 0; i < (pop.length); i++){
-		if(Math.floor(Math.random() * 1000) % 5 == 0){
-		}
-
-		console.log("test" + pop[i].numHidden)
-		trainSnake(pop[i], snakes[i])
-	}
 
 
 	for(let k = 0; k < pop.length; k++){
-		let male = Math.floor(Math.random() * (pop.length-1))
-		let female = Math.floor(Math.random() * (pop.length-1))
-
-		if(male != female){
-			let dad = pop[male]
-			let mom = pop[female]
-			children = breed(mom, dad)	
-		}
-		else{
-			continue
-		}
+		let dad = pop[1]
+		let mom = pop[0]
+		children = breed(mom, dad)	
 
 		for(let j = 0; j < children.length; j++){
 			newGen.push(children[j])
-			snakes.push(new Snake("Snake"+snakes.length))
+			snakes.push(new Snake("Snake_child_"+j+"generation_"+generationNumber))
 		}
 	}
 	
 	let retVal = pop.concat(newGen)
+	
+	//randomly mutate some of the snakes
+	for(let i = 0; i < (retVal.length); i++){
+		if(Math.floor(Math.random() * 1000) % 5 == 0){
+		}
+
+		console.log("test" + retVal[i].numHidden)
+		trainSnake(retVal[i], snakes[i])
+	}
+
+	generationNumber++
 
 	return{
 		retVal,

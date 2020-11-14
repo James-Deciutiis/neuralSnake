@@ -114,12 +114,14 @@ function autoMove(nn, snake){
 	let south_food = foodDirection[2]
 	let west_food = foodDirection[3]
 
-	let prediction = nn.feedForward(normalizeInput(north_food, east_food, south_food, west_food, north_obstacle, east_obstacle, south_obstacle, west_obstacle, prevDirection)).data
+	let obstacleAvoidDirection = avoidObstacleDirection(north_obstacle, east_obstacle, south_obstacle, west_obstacle, snake, prevDirection)
+	console.log("direction to live: " + obstacleAvoidDirection)	
+	let isObstacle = (obstacleAvoidDirection != 0) ? 1 : 0
+
+	let prediction = nn.feedForward(normalizeInput(north_food, east_food, south_food, west_food, north_obstacle, east_obstacle, south_obstacle, west_obstacle, isObstacle, prevDirection)).data
 	let max = 0.0
 	let choice = -1
 
-	let obstacleAvoidDirection = avoidObstacleDirection(north_obstacle, east_obstacle, south_obstacle, west_obstacle, snake, prevDirection)
-	console.log("direction to live: " + obstacleAvoidDirection)	
 
 	for(let i = 0; i <= 3; i++){
 		console.log(prediction[0][i])
