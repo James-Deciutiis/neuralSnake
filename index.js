@@ -8,25 +8,18 @@ import { evolve } from './snakeGenetics.js'
 let lastRenderTime = 0
 let deadCount = 0
 let gameOver = false
-let nn = []
-let snakes = []
 let lastGenerationTime = 0
+let snakes = []
+
 const THRESHOLD = 0.05
 const gameBoard = document.getElementById('game-board')
 
 if(AUTOMATIC_MODE){
-	let data = trainGeneration()
-	nn = data.generation
-	snakes = data.snakes
-	for(let i = 0; i < snakes.length; i++){
-		console.log(snakes[i])
-		snakes[i].inputDirection = {x:0 , y:-1}
-	}
 	lastGenerationTime = Date.now()/1000
+	snakes = trainGeneration()
 }
 else{
 	let human = new Snake()
-	snakes.push(human)
 }
 
 function main(currentTime){
@@ -59,16 +52,14 @@ function update(){
 			if(deadCount >= snakes.length || (Date.now()/1000) - lastGenerationTime > 60){	
 				snakes[i].fitness = (Date.now()/1000) - lastGenerationTime	
 
-				let data = evolve(nn, snakes)
-				nn = data.retVal
-				snakes = data.snakes
+				snakes = evolve(snakes)
 				deadCount = 0
 				lastGenerationTime = Date.now()/1000
 				break
 			}
 			updateFood(snakes[i])
 			snakes[i].update()
-			autoMove(nn[i], snakes[i])
+			autoMove(snakes[i].brain, snakes[i])
 		}
 	}
 	else{

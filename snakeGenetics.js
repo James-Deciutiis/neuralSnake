@@ -13,7 +13,9 @@ export function createPopulation(size){
 	let pop = []
 	for(let i = 0; i < size; i++){
 		let nn = new NeuralNetwork(10, MAX_NUMBER_OF_NEURONS, 4)   
-		pop.push(nn)
+		let snake = new Snake("Snake_i")
+		snake.brain = nn
+		pop.push(snake)
 	}
 	
 	return pop
@@ -42,26 +44,18 @@ function mutate(network){
 	network.weights2 = (oldWeights2 + mutation2)  * .5
 }
 
-export function evolve(pop, snakes){
+export function evolve(snakes){
 	let newGen = []
 	let children = []
 
 	snakes.sort(function(a, b){return Math.abs(b.fitness) - Math.abs(a.fitness)})
-	pop.sort(function(a, b){return Math.abs(b.score) - Math.abs(a.score)})
 	
 	maxFitness.push(snakes[0].fitness)
 	generationAxis.push(generationNumber)
 	plot(generationAxis, maxFitness)
 
-	for(let i = 0; i < snakes.length; i++){
-		pop[i].score = snakes[i].fitness
-		console.log("fitness : " + snakes[i].fitness)
-		console.log("snake id: " + snakes[i].elementId)
-	}
-
 	//remove everything but the best 2 snakes
-	while(pop.length > 3){
-		pop.pop()
+	while(snakes.length > 3){
 		snakes.pop()
 	}
 	
@@ -69,35 +63,31 @@ export function evolve(pop, snakes){
 		snakes[i].restart()
 	}
 	
-
-
-	for(let k = 0; k < pop.length; k++){
-		let dad = pop[1]
-		let mom = pop[0]
+	for(let k = 0; k < snakes.length; k++){
+		let dad = snakes[1].brain
+		let mom = snakes[0].brain
 		children = breed(mom, dad)	
 
 		for(let j = 0; j < children.length; j++){
-			newGen.push(children[j])
-			snakes.push(new Snake("Snake_child_"+j+"generation_"+generationNumber))
+			let newsnake = new Snake("Snake_child_"+j+"generation_"+generationNumber)
+			newsnake.brain = new NeuralNetwork(10, MAX_NUMBER_OF_NEURONS, 4)   
+			newGen.push(newsnake)	
 		}
 	}
 	
-	let retVal = pop.concat(newGen)
+	let retVal = snakes.concat(newGen)
 	
 	//randomly mutate some of the snakes
 	for(let i = 0; i < (retVal.length); i++){
 		if(Math.floor(Math.random() * 1000) % 5 == 0){
 		}
 
-		console.log("test" + retVal[i].numHidden)
-		trainSnake(retVal[i], snakes[i])
+		console.log("test" + retVal[i].brain.numHidden)
+		trainSnake(retVal[i].brain, retVal[i])
 	}
 
 	generationNumber++
 
-	return{
-		retVal,
-		snakes
-	}
+	return retVal
 }
 

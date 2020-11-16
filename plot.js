@@ -1,7 +1,6 @@
-
 export function plot(x, y){
 	var layout = {
-	  title: 'Maximum Fitness Per Generation ((Snake Size * .70) + (Time Alive (in seconds) * .30))',
+	  title: 'Maximum Fitness Per Generation',
 	  xaxis: {
 	    title: 'Generation Number',
 	    showgrid: false,

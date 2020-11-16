@@ -13,22 +13,16 @@ const DIRECTION_SOUTH_WEST = 6
 const DIRECTION_WEST = 7
 const DIRECTION_NORTH_WEST = 8
 const TRAINING_SESSIONS = 10000
-const GENERATION_SIZE = 5
+const GENERATION_SIZE = 10
 
 let generation = createPopulation(GENERATION_SIZE)
 
 export function trainGeneration(){
-	let snakes = []
-	for(let j = 0; j < GENERATION_SIZE; j++){
-		snakes.push(new Snake("Snake"+j))
-		trainSnake(generation[j], snakes[j])	
-		console.log(generation[j].numHidden)
+	for(let i = 0; i < GENERATION_SIZE; i++){
+		generation.brain = trainSnake(generation[i].brain, generation[i])
 	}
 
-	return {
-		generation,
-		snakes
-	}
+	return generation
 }
 
 export function trainSnake(network, snake){

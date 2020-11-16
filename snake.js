@@ -1,6 +1,6 @@
 import { GRID_SIZE } from './grid.js'
 
-export const SNAKE_SPEED = 15
+export const SNAKE_SPEED = 10
 export const AUTOMATIC_MODE = true
 
 export class Snake{
@@ -14,6 +14,9 @@ export class Snake{
 		this._newSegments = 0
 		this._fitness = this._snakeBody.length
 		this._dead = false
+		if(AUTOMATIC_MODE){
+			this._brain = [] 
+		}
 	}
 
 	update(){
@@ -99,6 +102,14 @@ export class Snake{
 
 	get elementId(){
 		return this._elementId
+	}
+	
+	get brain(){
+		return this._brain
+	}
+
+	set brain(brain){
+		this._brain = brain
 	}
 
 	set dead(bool){
