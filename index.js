@@ -4,6 +4,7 @@ import { outsideGrid, randomGridPosition, GRID_SIZE } from './grid.js'
 import { NeuralNetwork } from './snakeNeuralNetwork.js'
 import { trainGeneration, findObstacles, findFoodDirection, eatFoodDirection, avoidObstacleDirection, normalizeInput, convertToCardinal, deadPosition } from './trainingData.js' 
 import { evolve } from './snakeGenetics.js'
+import { plot } from './plot.js'
 
 let lastRenderTime = 0
 let deadCount = 0
@@ -17,6 +18,7 @@ const gameBoard = document.getElementById('game-board')
 if(AUTOMATIC_MODE){
 	lastGenerationTime = Date.now()/1000
 	snakes = trainGeneration()
+	plot([0], [0])
 }
 else{
 	let human = new Snake()

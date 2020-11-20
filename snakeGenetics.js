@@ -6,8 +6,8 @@ import { plot } from './plot.js'
 
 const MAX_NUMBER_OF_NEURONS = 100
 let generationNumber = 0
-let generationAxis = []
-let maxFitness = []
+let generationAxis = [0]
+let maxFitness = [0]
 
 export function createPopulation(size){
 	let pop = []
@@ -51,6 +51,10 @@ export function evolve(snakes){
 	snakes.sort(function(a, b){return Math.abs(b.fitness) - Math.abs(a.fitness)})
 	
 	maxFitness.push(snakes[0].fitness)
+	while(maxFitness.length > 5){
+		maxFitness.shift()
+	}
+
 	generationAxis.push(generationNumber)
 	plot(generationAxis, maxFitness)
 
