@@ -76,6 +76,18 @@ export class Matrix{
 
 		return retval
 	}
+	
+	static averageMatrices(matrix1, matrix2){
+		Matrix.checkDimensions(matrix1, matrix2)
+		let retval = Matrix.addMatrices(matrix1, matrix2)
+		for(let i = 0; i < retval.rows; i++){
+			for(let j = 0; j < retval.cols; j++){
+				retval.data[i][j] = retval.data[i][j] * .5
+			}
+		}
+
+		return retval
+	}
 
 	static dotProduct(matrix1, matrix2){
 		if (matrix1.cols != matrix2.rows){
@@ -135,6 +147,5 @@ export class Matrix{
 
 		return retVal
 	}	
-
 }
 	

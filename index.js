@@ -10,7 +10,7 @@ let lastRenderTime = 0
 let deadCount = 0
 let gameOver = false
 let lastGenerationTime = 0
-let snakes = []
+export let snakes = []
 
 const THRESHOLD = 0.05
 const gameBoard = document.getElementById('game-board')
@@ -21,7 +21,8 @@ if(AUTOMATIC_MODE){
 	plot([0], [0])
 }
 else{
-	let human = new Snake()
+	let player = new Snake()
+	snakes.push(player)
 }
 
 function main(currentTime){
@@ -29,11 +30,12 @@ function main(currentTime){
 	const secondsSinceLastRender = (currentTime - lastRenderTime) / 1000
 	if (secondsSinceLastRender < 1 / SNAKE_SPEED) return
 
-	if(false){
+	if(gameOver){
 		if(confirm('You lose, press okay to restart')){
 			window.location = '/'
 		}
-		return 
+		snakes[0].restart()
+		return
 	}
 
 	lastRenderTime = currentTime
@@ -53,7 +55,6 @@ function update(){
 			}
 			if(deadCount >= snakes.length || (Date.now()/1000) - lastGenerationTime > 60){	
 				snakes[i].fitness = (Date.now()/1000) - lastGenerationTime	
-
 				snakes = evolve(snakes)
 				deadCount = 0
 				lastGenerationTime = Date.now()/1000
@@ -67,7 +68,8 @@ function update(){
 	else{
 		updateFood(snakes[0])
 		snakes[0].update()
-		checkLoss()
+		move()
+		gameOver = checkLoss(snakes[0])
 	}
 }
 
@@ -148,3 +150,30 @@ function autoMove(nn, snake){
 	snake.inputDirection = prediction
 }
 
+function move(){
+if(!AUTOMATIC_MODE){
+	window.addEventListener('keydown', e => {
+			switch(e.key){
+				case 'ArrowUp':
+					if (snakes[0].lastInputDirection.y !== 0) break
+					snakes[0].inputDirection = { x:0, y:-1}
+					break
+				case 'ArrowRight':
+					console.log('INPUT')
+					if (snakes[0].lastInputDirection.x !== 0) break
+					snakes[0].inputDirection = { x:1, y:0}
+					break
+				case 'ArrowLeft':
+					console.log('INPUT')
+					if (snakes[0].lastInputDirection.x !== 0) break
+					snakes[0].inputDirection = { x:-1, y:0}
+					break
+				case 'ArrowDown':
+					console.log('INPUT')
+					if (snakes[0].lastInputDirection.y !== 0) break
+					snakes[0].inputDirection = { x:0, y:1}
+					break
+			}
+	})
+}
+}

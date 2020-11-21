@@ -13,7 +13,7 @@ const DIRECTION_SOUTH_WEST = 6
 const DIRECTION_WEST = 7
 const DIRECTION_NORTH_WEST = 8
 const TRAINING_SESSIONS = 10000
-const GENERATION_SIZE = 10
+const GENERATION_SIZE = 1
 
 let generation = createPopulation(GENERATION_SIZE)
 
