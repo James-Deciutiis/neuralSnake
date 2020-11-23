@@ -1,6 +1,7 @@
 import { GRID_SIZE } from './grid.js'
+
 export const SNAKE_SPEED = 10
-export const AUTOMATIC_MODE = false
+export const AUTOMATIC_MODE = true
 
 export class Snake{
 	constructor(id){
@@ -126,8 +127,8 @@ export class Snake{
 }
 
 function getRandomColor() {
-	var letters = '0123456789ABCDEF';
-  	var color = '#';
+	let letters = '0123456789ABCDEF';
+  	let color = '#';
   	for (var i = 0; i < 6; i++) {
 	    color += letters[Math.floor(Math.random() * 16)];
   	}

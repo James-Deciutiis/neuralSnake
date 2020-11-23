@@ -10,7 +10,7 @@ let lastRenderTime = 0
 let deadCount = 0
 let gameOver = false
 let lastGenerationTime = 0
-export let snakes = []
+let snakes = []
 
 const THRESHOLD = 0.05
 const gameBoard = document.getElementById('game-board')
@@ -53,6 +53,8 @@ function update(){
 				deadCount += 1
 				snakes[i].fitness = (Date.now()/1000) - lastGenerationTime	
 			}
+
+			//check to see if all the snakes are dead or if a minute has passed (to prevent endless loops)
 			if(deadCount >= snakes.length || (Date.now()/1000) - lastGenerationTime > 60){	
 				snakes[i].fitness = (Date.now()/1000) - lastGenerationTime	
 				snakes = evolve(snakes)
@@ -110,16 +112,16 @@ function autoMove(nn, snake){
 	let west_food = foodDirection[3]
 
 	let obstacleAvoidDirection = avoidObstacleDirection(north_obstacle, east_obstacle, south_obstacle, west_obstacle, snake, prevDirection)
-	console.log("direction to live: " + obstacleAvoidDirection)	
+
+	//console.log("direction to live: " + obstacleAvoidDirection)	
+	
 	let isObstacle = (obstacleAvoidDirection != 0) ? 1 : 0
 
 	let prediction = nn.feedForward(normalizeInput(north_food, east_food, south_food, west_food, north_obstacle, east_obstacle, south_obstacle, west_obstacle, isObstacle, prevDirection)).data
 	let max = 0.0
 	let choice = -1
 
-
 	for(let i = 0; i <= 3; i++){
-		console.log(prediction[0][i])
 		if(max < prediction[0][i] && (prediction[0][i] - THRESHOLD > 0)){
 			max = prediction[0][i]
 			choice = i
@@ -145,35 +147,31 @@ function autoMove(nn, snake){
 	else{
 		prediction = snake.inputDirection
 	}
-	
-	console.log("prediction is " + prediction.x + prediction.y)
+
 	snake.inputDirection = prediction
 }
 
 function move(){
-if(!AUTOMATIC_MODE){
-	window.addEventListener('keydown', e => {
-			switch(e.key){
-				case 'ArrowUp':
-					if (snakes[0].lastInputDirection.y !== 0) break
-					snakes[0].inputDirection = { x:0, y:-1}
-					break
-				case 'ArrowRight':
-					console.log('INPUT')
-					if (snakes[0].lastInputDirection.x !== 0) break
-					snakes[0].inputDirection = { x:1, y:0}
-					break
-				case 'ArrowLeft':
-					console.log('INPUT')
-					if (snakes[0].lastInputDirection.x !== 0) break
-					snakes[0].inputDirection = { x:-1, y:0}
-					break
-				case 'ArrowDown':
-					console.log('INPUT')
-					if (snakes[0].lastInputDirection.y !== 0) break
-					snakes[0].inputDirection = { x:0, y:1}
-					break
-			}
-	})
-}
+	if(!AUTOMATIC_MODE){
+		window.addEventListener('keydown', e => {
+				switch(e.key){
+					case 'ArrowUp':
+						if (snakes[0].lastInputDirection.y !== 0) break
+						snakes[0].inputDirection = { x:0, y:-1}
+						break
+					case 'ArrowRight':
+						if (snakes[0].lastInputDirection.x !== 0) break
+						snakes[0].inputDirection = { x:1, y:0}
+						break
+					case 'ArrowLeft':
+						if (snakes[0].lastInputDirection.x !== 0) break
+						snakes[0].inputDirection = { x:-1, y:0}
+						break
+					case 'ArrowDown':
+						if (snakes[0].lastInputDirection.y !== 0) break
+						snakes[0].inputDirection = { x:0, y:1}
+						break
+				}
+		})
+	}
 }

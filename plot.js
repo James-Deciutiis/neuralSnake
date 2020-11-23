@@ -1,6 +1,6 @@
 export function plot(x, y){
 	var layout = {
-	  title: 'Maximum Fitness Per Generation',
+	  title: 'Max Fitness Per Generation',
 	  xaxis: {
 	    title: 'Generation Number',
 	    showgrid: false,

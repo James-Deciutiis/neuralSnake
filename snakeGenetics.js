@@ -66,7 +66,6 @@ export function evolve(snakes){
 		snakes[i].restart()
 	}
 	
-	/*
 	for(let k = 0; k < snakes.length; k++){
 		let dad = snakes[1].brain
 		let mom = snakes[0].brain
@@ -78,12 +77,12 @@ export function evolve(snakes){
 			newGen.push(newsnake)	
 		}
 	}
-	*/
+	
 	let retval = snakes.concat(newGen)
 	
 	//randomly mutate some of the snakes
 	for(let i = 0; i < (retval.length); i++){
-		if(Math.floor(Math.random() * 1000) % 5 == 0){
+		if(Math.floor(Math.random() * 10) == 3){
 			mutate(retval[i].brain)
 		}
 

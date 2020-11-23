@@ -1,6 +1,6 @@
 import { Matrix } from './matrix.js'
 
-const DEBUG_MODE = true
+const DEBUG_MODE = false
 const MESSAGE_FREQUENCY = 10000
 
 export class NeuralNetwork{
