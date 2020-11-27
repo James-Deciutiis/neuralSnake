@@ -51,10 +51,20 @@
 
 		.btn{
 			font-size: 100px;
+			text-align: center;
 			border-radius: 10%;
 			color: white;
 			background-color: black;
 			border: 2px solid blue;
+			display: block;
+			padding: 32px 16px;
+			margin: 10px 5px;
+			transition-duration: 0.4s;
+		}
+
+		.btn:hover{
+			background-color: blue;
+			color:white;
 		}
 
 	</style>
@@ -63,11 +73,14 @@
 </head>
 
 <body>
+	<div id="score">
+		<h1>Score: </h1>
+	</div>
+
 	<div id="game-board"></div>
 	<div id="chart"></div>
-	<button type="button" id="automation_btn" class="btn">Watch snakes learn</button>
-	<br>
-	<button type="button" id="manual_btn" class="btn">Play</button>
+	<button class="btn" id="manual_btn">Play</button>
+	<button class="btn" id="automation_btn">Watch snakes learn</button>
 </body>
 <script>
 </script>	

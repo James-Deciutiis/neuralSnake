@@ -1,7 +1,6 @@
 import { GRID_SIZE } from './grid.js'
 
-export const SNAKE_SPEED = 5
-export const AUTOMATIC_MODE = false
+export const SNAKE_SPEED = 10
 
 export class Snake{
 	constructor(auto_mode, id){

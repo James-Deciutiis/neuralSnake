@@ -1,4 +1,4 @@
-import { SNAKE_SPEED, AUTOMATIC_MODE, Snake } from './snake.js'
+import { SNAKE_SPEED, Snake } from './snake.js'
 import { update as updateFood, draw as drawFood, getRandomFoodPosition, getFoodPosition } from './food.js'
 import { outsideGrid, randomGridPosition, GRID_SIZE } from './grid.js'
 import { NeuralNetwork } from './snakeNeuralNetwork.js'
@@ -10,6 +10,7 @@ const THRESHOLD = 0.05
 const gameBoard = document.getElementById('game-board')
 const automation_btn = document.getElementById("automation_btn")
 const manual_btn = document.getElementById("manual_btn")
+const score = document.getElementById("score")
 
 let lastRenderTime = 0
 let deadCount = 0
@@ -19,39 +20,7 @@ let snakes = []
 let automatic_mode = false
 let mode_select = true
 
-gameBoard.style.display = "none"  
-
-automation_btn.onclick = function(){
-	automation_btn.style.display = "none"  
-	manual_btn.style.display = "none"  
-	gameBoard.style.display = "grid"  
-	mode_select = false
-	automatic_mode = true
-	start()
-}
-
-manual_btn.onclick = function(){
-	automation_btn.style.display = "none"  
-	manual_btn.style.display = "none"  
-	gameBoard.style.display = "grid"  
-	mode_select = false
-	automatic_mode = false
-	start()
-}
-
-function start(){
-	if(automatic_mode){
-		lastGenerationTime = Date.now()/1000
-		snakes = trainGeneration()
-		plot([0], [0])
-	}
-	else{
-		let player = new Snake(false, "player")
-		snakes.push(player)
-	}
-
-	window.requestAnimationFrame(main)
-}
+menu()
 
 function main(currentTime){
 
@@ -63,6 +32,10 @@ function main(currentTime){
 		if(confirm('You lose, press okay to restart')){
 			gameOver = false
 			snakes[0].restartPlayer()
+		}
+		else{
+			delete snakes[0]
+			menu()
 		}
 	}
 
@@ -210,4 +183,44 @@ function move(){
 				}
 		})
 	}
+}
+
+function menu(){
+	automation_btn.style.display = "block"  
+	manual_btn.style.display = "block"  
+	gameBoard.style.display = "none"  
+	score.style.display = "none"
+
+	automation_btn.onclick = function(){
+		automation_btn.style.display = "none"  
+		manual_btn.style.display = "none"  
+		gameBoard.style.display = "grid"  
+		mode_select = false
+		automatic_mode = true
+		start()
+	}
+
+	manual_btn.onclick = function(){
+		automation_btn.style.display = "none"  
+		manual_btn.style.display = "none"  
+		gameBoard.style.display = "grid"  
+		score.style.display = "block"
+		mode_select = false
+		automatic_mode = false
+		start()
+	}
+}
+
+function start(){
+	if(automatic_mode){
+		lastGenerationTime = Date.now()/1000
+		snakes = trainGeneration()
+		plot([0], [0])
+	}
+	else{
+		let player = new Snake(false, "player")
+		snakes.push(player)
+	}
+
+	window.requestAnimationFrame(main)
 }
