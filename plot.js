@@ -1,4 +1,11 @@
+let chart = document.getElementById('chart')
+chart.style.display = "none"  
+
 export function plot(x, y){
+	if(chart.style.display === "none"){
+		chart.style.display = "block"
+	}
+
 	var layout = {
 	  title: 'Max Fitness Per Generation',
 	  xaxis: {
@@ -11,6 +18,5 @@ export function plot(x, y){
 	    showline: false
 	  }
 	};
-	let TESTER = document.getElementById('chart')
-	Plotly.newPlot(TESTER, [{x,y}], layout)
+	Plotly.newPlot(chart, [{x,y}], layout)
 }

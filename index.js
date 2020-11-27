@@ -6,47 +6,83 @@ import { trainGeneration, findObstacles, findFoodDirection, eatFoodDirection, av
 import { evolve } from './snakeGenetics.js'
 import { plot } from './plot.js'
 
+const THRESHOLD = 0.05
+const gameBoard = document.getElementById('game-board')
+const automation_btn = document.getElementById("automation_btn")
+const manual_btn = document.getElementById("manual_btn")
+
 let lastRenderTime = 0
 let deadCount = 0
 let gameOver = false
 let lastGenerationTime = 0
 let snakes = []
+let automatic_mode = false
+let mode_select = true
 
-const THRESHOLD = 0.05
-const gameBoard = document.getElementById('game-board')
+gameBoard.style.display = "none"  
 
-if(AUTOMATIC_MODE){
-	lastGenerationTime = Date.now()/1000
-	snakes = trainGeneration()
-	plot([0], [0])
+automation_btn.onclick = function(){
+	automation_btn.style.display = "none"  
+	manual_btn.style.display = "none"  
+	gameBoard.style.display = "grid"  
+	mode_select = false
+	automatic_mode = true
+	start()
 }
-else{
-	let player = new Snake()
-	snakes.push(player)
+
+manual_btn.onclick = function(){
+	automation_btn.style.display = "none"  
+	manual_btn.style.display = "none"  
+	gameBoard.style.display = "grid"  
+	mode_select = false
+	automatic_mode = false
+	start()
+}
+
+function start(){
+	if(automatic_mode){
+		lastGenerationTime = Date.now()/1000
+		snakes = trainGeneration()
+		plot([0], [0])
+	}
+	else{
+		let player = new Snake(false, "player")
+		snakes.push(player)
+	}
+
+	window.requestAnimationFrame(main)
 }
 
 function main(currentTime){
+
 	window.requestAnimationFrame(main)
 	const secondsSinceLastRender = (currentTime - lastRenderTime) / 1000
 	if (secondsSinceLastRender < 1 / SNAKE_SPEED) return
 
 	if(gameOver){
 		if(confirm('You lose, press okay to restart')){
-			window.location = '/'
+			gameOver = false
+			snakes[0].restartPlayer()
 		}
-		snakes[0].restart()
-		return
 	}
 
 	lastRenderTime = currentTime
 	update()
 	draw()
 }
-	
-window.requestAnimationFrame(main)
 
+function getMode(){
+	if(mode_select){
+	}
+	else{
+		return
+	}
+		
+	setTimeout(getMode(), 10000)
+}
+	
 function update(){
-	if(AUTOMATIC_MODE){
+	if(automatic_mode){
 		for(let i = 0; i < snakes.length; i++){
 			if(checkLoss(snakes[i]) && !(snakes[i].dead)){
 				snakes[i].dead = true
@@ -152,7 +188,7 @@ function autoMove(nn, snake){
 }
 
 function move(){
-	if(!AUTOMATIC_MODE){
+	if(!automatic_mode){
 		window.addEventListener('keydown', e => {
 				switch(e.key){
 					case 'ArrowUp':

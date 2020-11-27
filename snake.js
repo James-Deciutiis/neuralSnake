@@ -1,20 +1,21 @@
 import { GRID_SIZE } from './grid.js'
 
-export const SNAKE_SPEED = 10
-export const AUTOMATIC_MODE = true
+export const SNAKE_SPEED = 5
+export const AUTOMATIC_MODE = false
 
 export class Snake{
-	constructor(id){
+	constructor(auto_mode, id){
 		this._elementId = id
 		this._color = getRandomColor()
-		this._snakeBody = getStartPosition()
 		//by default, snake is moving in a random direction 
+		this._snakeBody = [{x:Math.floor(GRID_SIZE/2), y:Math.floor(GRID_SIZE/2)}]
 		this._inputDirection = getRandomDirection()
 		this._lastInputDirection = this._inputDirection
 		this._newSegments = 0
 		this._fitness = this._snakeBody.length
 		this._dead = false
-		if(AUTOMATIC_MODE){
+		if(auto_mode){
+			this._snakeBody = getStartPosition()
 			this._brain = [] 
 		}
 	}
@@ -77,12 +78,18 @@ export class Snake{
 	
 	restart(){
 		this._snakeBody = getStartPosition()
-		this._dead = false
-		this._fitness = 0
 		this._inputDirection = getRandomDirection()
 		this._lastInputDirection = this._inputDirection
+		this._fitness = 0
+		this._dead = false
 	}
 
+	restartPlayer(){
+		this._snakeBody = [{x:Math.floor(GRID_SIZE/2), y:Math.floor(GRID_SIZE/2)}]
+		this._inputDirection = getRandomDirection()
+		this._lastInputDirection = this._inputDirection
+		this._dead = false
+	}
 
 	get inputDirection(){
 		return this._inputDirection

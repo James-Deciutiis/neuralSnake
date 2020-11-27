@@ -13,7 +13,7 @@ export function createPopulation(size){
 	let pop = []
 	for(let i = 0; i < size; i++){
 		let nn = new NeuralNetwork(10, MAX_NUMBER_OF_NEURONS, 4)   
-		let snake = new Snake("Snake_i")
+		let snake = new Snake(true, "Snake_i")
 		snake.brain = nn
 		pop.push(snake)
 	}
@@ -72,7 +72,7 @@ export function evolve(snakes){
 		children = breed(mom, dad)	
 
 		for(let j = 0; j < children.length; j++){
-			let newsnake = new Snake("Snake_child_"+j+"generation_"+generationNumber)
+			let newsnake = new Snake(true, "Snake_child_"+j+"generation_"+generationNumber)
 			newsnake.brain = new NeuralNetwork(10, MAX_NUMBER_OF_NEURONS, 4)   
 			newGen.push(newsnake)	
 		}

@@ -19,8 +19,8 @@
 
 		#game-board{
 			background-color: black;
-			width: 25vmin;
-			height: 25vmin;
+			width: 40vmin;
+			height: 40vmin;
 			border: .20vmin solid red;
 			border-color: red;
 			display: grid;
@@ -48,6 +48,15 @@
 			background-color: red;
 			border: 1vmin solid black;
 		}
+
+		.btn{
+			font-size: 100px;
+			border-radius: 10%;
+			color: white;
+			background-color: black;
+			border: 2px solid blue;
+		}
+
 	</style>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 	<script src="index.js" defer type="module"></script>
@@ -56,6 +65,9 @@
 <body>
 	<div id="game-board"></div>
 	<div id="chart"></div>
+	<button type="button" id="automation_btn" class="btn">Watch snakes learn</button>
+	<br>
+	<button type="button" id="manual_btn" class="btn">Play</button>
 </body>
 <script>
 </script>	
