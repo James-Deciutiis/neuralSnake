@@ -10,20 +10,24 @@ const THRESHOLD = 0.05
 const gameBoard = document.getElementById('game-board')
 const automation_btn = document.getElementById("automation_btn")
 const manual_btn = document.getElementById("manual_btn")
+const return_btn = document.getElementById("return_btn")
 const score = document.getElementById("score")
 
+let chart = document.getElementById('chart')
 let lastRenderTime = 0
-let deadCount = 0
-let gameOver = false
 let lastGenerationTime = 0
+let deadCount = 0
+let generationNumber = 0
 let snakes = []
+let maxFitness = []
+let generationAxis = []
+let gameOver = false
 let automatic_mode = false
 let mode_select = true
 
 menu()
 
 function main(currentTime){
-
 	window.requestAnimationFrame(main)
 	const secondsSinceLastRender = (currentTime - lastRenderTime) / 1000
 	if (secondsSinceLastRender < 1 / SNAKE_SPEED) return
@@ -34,7 +38,7 @@ function main(currentTime){
 			snakes[0].restartPlayer()
 		}
 		else{
-			delete snakes[0]
+		delete snakes[0]
 			menu()
 		}
 	}
@@ -68,13 +72,25 @@ function update(){
 				snakes[i].fitness = (Date.now()/1000) - lastGenerationTime	
 				snakes = evolve(snakes)
 				deadCount = 0
+				generationNumber++
 				lastGenerationTime = Date.now()/1000
 				break
 			}
+
 			updateFood(snakes[i])
 			snakes[i].update()
 			autoMove(snakes[i].brain, snakes[i])
 		}
+
+		maxFitness.push(snakes[0].fitness)
+		generationAxis.push(generationNumber)
+		while(maxFitness.length > 5){
+			maxFitness.shift()
+			generationAxis.shift()
+		}
+
+		plot(generationAxis, maxFitness)
+
 	}
 	else{
 		updateFood(snakes[0])
@@ -161,40 +177,42 @@ function autoMove(nn, snake){
 }
 
 function move(){
-	if(!automatic_mode){
-		window.addEventListener('keydown', e => {
-				switch(e.key){
-					case 'ArrowUp':
-						if (snakes[0].lastInputDirection.y !== 0) break
-						snakes[0].inputDirection = { x:0, y:-1}
-						break
-					case 'ArrowRight':
-						if (snakes[0].lastInputDirection.x !== 0) break
-						snakes[0].inputDirection = { x:1, y:0}
-						break
-					case 'ArrowLeft':
-						if (snakes[0].lastInputDirection.x !== 0) break
-						snakes[0].inputDirection = { x:-1, y:0}
-						break
-					case 'ArrowDown':
-						if (snakes[0].lastInputDirection.y !== 0) break
-						snakes[0].inputDirection = { x:0, y:1}
-						break
-				}
-		})
-	}
+	window.addEventListener('keydown', e => {
+			switch(e.key){
+				case 'ArrowUp':
+					if (snakes[0].lastInputDirection.y !== 0) break
+					snakes[0].inputDirection = { x:0, y:-1}
+					break
+				case 'ArrowRight':
+					if (snakes[0].lastInputDirection.x !== 0) break
+					snakes[0].inputDirection = { x:1, y:0}
+					break
+				case 'ArrowLeft':
+					if (snakes[0].lastInputDirection.x !== 0) break
+					snakes[0].inputDirection = { x:-1, y:0}
+					break
+				case 'ArrowDown':
+					if (snakes[0].lastInputDirection.y !== 0) break
+					snakes[0].inputDirection = { x:0, y:1}
+					break
+			}
+	})
 }
 
 function menu(){
 	automation_btn.style.display = "block"  
-	manual_btn.style.display = "block"  
+	manual_btn.style.display = "block"
+	return_btn.style.display = "none"
 	gameBoard.style.display = "none"  
 	score.style.display = "none"
+	chart.style.display = "none"  
 
 	automation_btn.onclick = function(){
 		automation_btn.style.display = "none"  
 		manual_btn.style.display = "none"  
+		return_btn.style.display = "block"
 		gameBoard.style.display = "grid"  
+		chart.style.display = "block"  
 		mode_select = false
 		automatic_mode = true
 		start()
@@ -208,6 +226,11 @@ function menu(){
 		mode_select = false
 		automatic_mode = false
 		start()
+	}
+
+	return_btn.onclick = function(){
+		snakes = []
+		menu()
 	}
 }
 
@@ -224,3 +247,4 @@ function start(){
 
 	window.requestAnimationFrame(main)
 }
+

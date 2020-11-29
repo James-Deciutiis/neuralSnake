@@ -48,15 +48,6 @@ export function evolve(snakes){
 
 	snakes.sort(function(a, b){return Math.abs(b.fitness) - Math.abs(a.fitness)})
 	
-	maxFitness.push(snakes[0].fitness)
-	generationAxis.push(generationNumber)
-	while(maxFitness.length > 5){
-		maxFitness.shift()
-		generationAxis.shift()
-	}
-
-	plot(generationAxis, maxFitness)
-
 	//remove everything but the best 2 snakes
 	while(snakes.length > 3){
 		snakes.pop()

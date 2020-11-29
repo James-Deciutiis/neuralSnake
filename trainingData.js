@@ -15,9 +15,9 @@ const DIRECTION_NORTH_WEST = 8
 const TRAINING_SESSIONS = 1000
 const GENERATION_SIZE = 10
 
-let generation = createPopulation(GENERATION_SIZE)
-
 export function trainGeneration(){
+	let generation = createPopulation(GENERATION_SIZE)
+	
 	for(let i = 0; i < GENERATION_SIZE; i++){
 		generation.brain = trainSnake(generation[i].brain, generation[i])
 	}

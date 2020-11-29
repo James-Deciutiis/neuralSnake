@@ -1,11 +1,4 @@
-let chart = document.getElementById('chart')
-chart.style.display = "none"  
-
 export function plot(x, y){
-	if(chart.style.display === "none"){
-		chart.style.display = "block"
-	}
-
 	var layout = {
 	  title: 'Max Fitness Per Generation',
 	  xaxis: {
