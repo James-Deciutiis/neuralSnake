@@ -16,6 +16,9 @@
 			margin: 0;
 			background-color: black;
 		}
+		.center {
+  			margin: 0;
+		}		
 
 		#game-board{
 			background-color: black;
@@ -50,15 +53,15 @@
 		}
 
 		.btn{
-			font-size: 100px;
+			font-size: 50px;
 			text-align: center;
-			border-radius: 10%;
+			border-radius: 40%;
 			color: white;
 			background-color: black;
 			border: 2px solid blue;
 			display: block;
 			padding: 32px 16px;
-			margin: 10px 5px;
+			margin: 0 auto;
 			transition-duration: 0.4s;
 		}
 
@@ -73,15 +76,22 @@
 </head>
 
 <body>
-	<div id="score">
-		<h1>Score: </h1>
-	</div>
 
-	<div id="game-board"></div>
 	<div id="chart"></div>
-	<button class="btn" id="manual_btn">Play</button>
-	<button class="btn" id="automation_btn">Watch snakes learn</button>
-	<button class="btn" id="return_btn">Stop Watching</button>
+	<div class="center">
+		<h1 id="score" style="color:white;">Score: </h1>
+		<h1 id="time" style="color:white;">Time left in this generation: </h1>
+		<div id="game-board" class="center"></div>
+		<div class="center">
+			</br><button class="btn" id="return_btn">Back to menu</button>
+		</div>
+	</div>
+	<div class="center">
+		<p>
+			<button class="btn" id="manual_btn">Play</button></br>
+			<button class="btn" id="automation_btn">Watch </br>  snakes learn</button></br>
+		</p>
+	</div>
 </body>
 <script>
 </script>	

@@ -12,6 +12,7 @@ const automation_btn = document.getElementById("automation_btn")
 const manual_btn = document.getElementById("manual_btn")
 const return_btn = document.getElementById("return_btn")
 const score = document.getElementById("score")
+const time = document.getElementById("score")
 
 let chart = document.getElementById('chart')
 let lastRenderTime = 0
@@ -19,8 +20,8 @@ let lastGenerationTime = 0
 let deadCount = 0
 let generationNumber = 0
 let snakes = []
-let maxFitness = []
-let generationAxis = []
+let maxFitness = [0]
+let generationAxis = [0]
 let gameOver = false
 let automatic_mode = false
 let mode_select = true
@@ -38,26 +39,19 @@ function main(currentTime){
 			snakes[0].restartPlayer()
 		}
 		else{
-		delete snakes[0]
+			snakes = []
+			gameOver = false
 			menu()
 		}
 	}
-
-	lastRenderTime = currentTime
-	update()
-	draw()
-}
-
-function getMode(){
-	if(mode_select){
-	}
-	else{
-		return
-	}
-		
-	setTimeout(getMode(), 10000)
-}
 	
+	if(snakes.length > 0){
+		lastRenderTime = currentTime
+		update()
+		draw()
+	}
+}
+
 function update(){
 	if(automatic_mode){
 		for(let i = 0; i < snakes.length; i++){
@@ -68,11 +62,21 @@ function update(){
 			}
 
 			//check to see if all the snakes are dead or if a minute has passed (to prevent endless loops)
-			if(deadCount >= snakes.length || (Date.now()/1000) - lastGenerationTime > 60){	
+			if(deadCount >= snakes.length || (Date.now()/1000) - lastGenerationTime >= 60){	
 				snakes[i].fitness = (Date.now()/1000) - lastGenerationTime	
-				snakes = evolve(snakes)
+				evolve(snakes)
 				deadCount = 0
+				
+				//record and plot the new max fitness
 				generationNumber++
+				maxFitness.push(snakes[0].fitness)
+				generationAxis.push(generationNumber)
+				while(maxFitness.length > 5){
+					maxFitness.shift()
+					generationAxis.shift()
+				}
+				plot(generationAxis, maxFitness)
+
 				lastGenerationTime = Date.now()/1000
 				break
 			}
@@ -81,21 +85,12 @@ function update(){
 			snakes[i].update()
 			autoMove(snakes[i].brain, snakes[i])
 		}
-
-		maxFitness.push(snakes[0].fitness)
-		generationAxis.push(generationNumber)
-		while(maxFitness.length > 5){
-			maxFitness.shift()
-			generationAxis.shift()
-		}
-
-		plot(generationAxis, maxFitness)
-
 	}
 	else{
 		updateFood(snakes[0])
 		snakes[0].update()
 		move()
+		score.innerHTML = "Score : " + (snakes[0].snakeBody.length - 1).toString()
 		gameOver = checkLoss(snakes[0])
 	}
 }
@@ -222,6 +217,7 @@ function menu(){
 		automation_btn.style.display = "none"  
 		manual_btn.style.display = "none"  
 		gameBoard.style.display = "grid"  
+		return_btn.style.display = "block"
 		score.style.display = "block"
 		mode_select = false
 		automatic_mode = false

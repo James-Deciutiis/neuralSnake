@@ -47,9 +47,8 @@ export function evolve(snakes){
 	let children = []
 
 	snakes.sort(function(a, b){return Math.abs(b.fitness) - Math.abs(a.fitness)})
-	
 	//remove everything but the best 2 snakes
-	while(snakes.length > 3){
+	while(snakes.length > 4){
 		snakes.pop()
 	}
 	
@@ -63,26 +62,20 @@ export function evolve(snakes){
 		children = breed(mom, dad)	
 
 		for(let j = 0; j < children.length; j++){
-			let newsnake = new Snake(true, "Snake_child_"+j+"generation_"+generationNumber)
+			let newsnake = new Snake(true, "Snake_child_"+j+"_generation_"+generationNumber)
 			newsnake.brain = new NeuralNetwork(10, MAX_NUMBER_OF_NEURONS, 4)   
 			newGen.push(newsnake)	
 		}
 	}
 	
-	let retval = snakes.concat(newGen)
+	snakes = snakes.concat(newGen)
 	
 	//randomly mutate some of the snakes
-	for(let i = 0; i < (retval.length); i++){
+	for(let i = 0; i < (snakes.length); i++){
 		if(Math.floor(Math.random() * 10) == 3){
-			mutate(retval[i].brain)
+			mutate(snakes[i].brain)
 		}
 
-		console.log("test" + retval[i].brain.numHidden)
-		trainSnake(retval[i].brain, retval[i])
+		trainSnake(snakes[i].brain, snakes[i])
 	}
-
-	generationNumber++
-
-	return retval
 }
-

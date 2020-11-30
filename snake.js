@@ -1,6 +1,6 @@
 import { GRID_SIZE } from './grid.js'
 
-export const SNAKE_SPEED = 10
+export var SNAKE_SPEED = 10
 
 export class Snake{
 	constructor(auto_mode, id){
@@ -79,7 +79,6 @@ export class Snake{
 		this._snakeBody = getStartPosition()
 		this._inputDirection = getRandomDirection()
 		this._lastInputDirection = this._inputDirection
-		this._fitness = 0
 		this._dead = false
 	}
 
@@ -112,6 +111,10 @@ export class Snake{
 	
 	get brain(){
 		return this._brain
+	}
+
+	get snakeBody(){
+		return this._snakeBody
 	}
 
 	set brain(brain){

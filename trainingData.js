@@ -12,7 +12,7 @@ const DIRECTION_SOUTH = 5
 const DIRECTION_SOUTH_WEST = 6
 const DIRECTION_WEST = 7
 const DIRECTION_NORTH_WEST = 8
-const TRAINING_SESSIONS = 1000
+const TRAINING_SESSIONS = 500
 const GENERATION_SIZE = 10
 
 export function trainGeneration(){
