@@ -13,7 +13,7 @@ export function createPopulation(size){
 	let pop = []
 	for(let i = 0; i < size; i++){
 		let nn = new NeuralNetwork(10, MAX_NUMBER_OF_NEURONS, 4)   
-		let snake = new Snake(true, "Snake_i")
+		let snake = new Snake(true, "Snake_"+i)
 		snake.brain = nn
 		pop.push(snake)
 	}
@@ -56,26 +56,29 @@ export function evolve(snakes){
 		snakes[i].restart()
 	}
 	
-	for(let k = 0; k < snakes.length; k++){
+	for(let i = 0; i < snakes.length; i++){
 		let dad = snakes[1].brain
 		let mom = snakes[0].brain
 		children = breed(mom, dad)	
 
 		for(let j = 0; j < children.length; j++){
-			let newsnake = new Snake(true, "Snake_child_"+j+"_generation_"+generationNumber)
-			newsnake.brain = new NeuralNetwork(10, MAX_NUMBER_OF_NEURONS, 4)   
+			let newsnake = new Snake(true, "Snake_child_"+newGen.length+"_generation_"+generationNumber)
+			console.log('bred')
+			newsnake.brain = children[j]   
 			newGen.push(newsnake)	
 		}
 	}
-	
-	snakes = snakes.concat(newGen)
+		
+	let retval = snakes.concat(newGen)
 	
 	//randomly mutate some of the snakes
-	for(let i = 0; i < (snakes.length); i++){
+	for(let i = 0; i < (retval.length); i++){
 		if(Math.floor(Math.random() * 10) == 3){
-			mutate(snakes[i].brain)
+			mutate(retval[i].brain)
 		}
-
-		trainSnake(snakes[i].brain, snakes[i])
+		trainSnake(retval[i].brain, retval[i])
 	}
+
+	generationNumber++
+	return retval
 }

@@ -10,6 +10,8 @@ export function plot(x, y){
 	    title: 'Fitness Score',
 	    showline: false
 	  }
-	};
-	Plotly.newPlot(chart, [{x,y}], layout)
+	}
+	
+	var config = {responsive: true}
+	Plotly.newPlot(chart, [{x,y}], layout, config)
 }

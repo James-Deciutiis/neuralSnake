@@ -64,9 +64,15 @@ function update(){
 			//check to see if all the snakes are dead or if a minute has passed (to prevent endless loops)
 			if(deadCount >= snakes.length || (Date.now()/1000) - lastGenerationTime >= 60){	
 				snakes[i].fitness = (Date.now()/1000) - lastGenerationTime	
-				evolve(snakes)
+				snakes = evolve(snakes)
 				deadCount = 0
 				
+				for(let k = 0; k<snakes.length; k++){
+
+
+					console.log("k: " + k + " ele: " + snakes[k].elementId)
+			
+				}
 				//record and plot the new max fitness
 				generationNumber++
 				maxFitness.push(snakes[0].fitness)
@@ -174,24 +180,24 @@ function autoMove(nn, snake){
 
 function move(){
 	window.addEventListener('keydown', e => {
-			switch(e.key){
-				case 'ArrowUp':
-					if (snakes[0].lastInputDirection.y !== 0) break
-					snakes[0].inputDirection = { x:0, y:-1}
-					break
-				case 'ArrowRight':
-					if (snakes[0].lastInputDirection.x !== 0) break
-					snakes[0].inputDirection = { x:1, y:0}
-					break
-				case 'ArrowLeft':
-					if (snakes[0].lastInputDirection.x !== 0) break
-					snakes[0].inputDirection = { x:-1, y:0}
-					break
-				case 'ArrowDown':
-					if (snakes[0].lastInputDirection.y !== 0) break
-					snakes[0].inputDirection = { x:0, y:1}
-					break
-			}
+		switch(e.key){
+			case 'ArrowUp':
+				if (snakes[0].lastInputDirection.y !== 0) break
+				snakes[0].inputDirection = { x:0, y:-1}
+				break
+			case 'ArrowRight':
+				if (snakes[0].lastInputDirection.x !== 0) break
+				snakes[0].inputDirection = { x:1, y:0}
+				break
+			case 'ArrowLeft':
+				if (snakes[0].lastInputDirection.x !== 0) break
+				snakes[0].inputDirection = { x:-1, y:0}
+				break
+			case 'ArrowDown':
+				if (snakes[0].lastInputDirection.y !== 0) break
+				snakes[0].inputDirection = { x:0, y:1}
+				break
+		}
 	})
 }
 
@@ -229,6 +235,9 @@ function menu(){
 
 	return_btn.onclick = function(){
 		snakes = []
+		generationNumber = 0
+		maxFitness = [0]
+		generationAxis = [0]
 		menu()
 	}
 }
