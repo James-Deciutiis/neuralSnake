@@ -12,9 +12,9 @@ const automation_btn = document.getElementById("automation_btn")
 const manual_btn = document.getElementById("manual_btn")
 const return_btn = document.getElementById("return_btn")
 const score = document.getElementById("score")
-const time = document.getElementById("score")
+const time = document.getElementById("time")
+const chart = document.getElementById('chart')
 
-let chart = document.getElementById('chart')
 let lastRenderTime = 0
 let lastGenerationTime = 0
 let deadCount = 0
@@ -84,6 +84,7 @@ function update(){
 			updateFood(snakes[i])
 			snakes[i].update()
 			autoMove(snakes[i].brain, snakes[i])
+			time.innerHTML = "Time left for generation: " + (Math.floor(Math.abs((Date.now()/1000) - lastGenerationTime - 60))).toString()
 		}
 	}
 	else{
@@ -201,13 +202,15 @@ function menu(){
 	gameBoard.style.display = "none"  
 	score.style.display = "none"
 	chart.style.display = "none"  
+	time.style.display = "none"
 
 	automation_btn.onclick = function(){
 		automation_btn.style.display = "none"  
 		manual_btn.style.display = "none"  
-		return_btn.style.display = "block"
 		gameBoard.style.display = "grid"  
+		return_btn.style.display = "block"
 		chart.style.display = "block"  
+		time.style.display = "block"
 		mode_select = false
 		automatic_mode = true
 		start()
