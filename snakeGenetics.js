@@ -47,8 +47,8 @@ export function evolve(snakes){
 	let children = []
 
 	snakes.sort(function(a, b){return Math.abs(b.fitness) - Math.abs(a.fitness)})
-	//remove everything but the best 2 snakes
-	while(snakes.length > 4){
+	//remove everything but the best 5 snakes
+	while(snakes.length > 6){
 		snakes.pop()
 	}
 	
