@@ -236,8 +236,10 @@ function menu(){
 	return_btn.onclick = function(){
 		snakes = []
 		generationNumber = 0
+		deadCount = 0
 		maxFitness = [0]
 		generationAxis = [0]
+		plot([0], [0])
 		menu()
 	}
 }
