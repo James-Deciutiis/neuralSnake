@@ -6,7 +6,6 @@ let food = {
 	y: 3
 }
 const EXPANSION_RATE = 1
-
 export function update(snake){
 	if(snake.onSnake(food)){
 		snake.expandSnake(EXPANSION_RATE)
